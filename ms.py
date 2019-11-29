@@ -9,9 +9,12 @@ class MinesWindow(Gtk.Window):
     GAME_ROWS = 9
     GAME_COLS = 9
     GAME_MINES = 30
+    GAME_STATUS_OK = 1
+    GAME_STATUS_ENDED = 2
 
     __grid = None
     __mf = None
+    __status = GAME_STATUS_OK
 
     def __init__(self):
         Gtk.Window.__init__(self, title="Mines")
@@ -24,12 +27,23 @@ class MinesWindow(Gtk.Window):
     def __drawField(self):
         self.__mf = minefield.Minefield(self.GAME_COLS, self.GAME_ROWS, self.GAME_MINES)
         print(self.__mf)
-        b1 = Gtk.Button(label='b1', width_request = 40 , height_request = 40)
-        #Gtk.Widget.set_size_request(b1, 12, 32)
-        b2 = Gtk.Button(label='b2', width_request = 40 , height_request = 40)
+        field = self.__mf.field
 
-        self.__grid.attach(b1, 0, 0, 1, 1)
-        self.__grid.attach(b2, 1, 0, 1, 1)
+        # generate buttons
+        for h in range(self.GAME_ROWS):
+            for w in range(self.GAME_COLS):
+                btn = Gtk.Button(label='   ', width_request = 40, height_request = 40)
+                btn.connect('clicked', self.on_cell_click, h*self.GAME_COLS + w)
+                self.__grid.attach(btn, w, h, 1, 1)
+    
+    def on_cell_click(self, button, id):
+        if self.__status == self.GAME_STATUS_OK:
+            # process clicks
+            pos_h = int (id / self.GAME_COLS)
+            pos_w = id % self.GAME_COLS
+        else:
+            # do not process clicks when game ended
+            pass
 
 window = MinesWindow()
 window.connect("destroy", Gtk.main_quit)
