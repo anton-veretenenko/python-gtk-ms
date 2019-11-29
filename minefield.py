@@ -25,7 +25,7 @@ class Minefield:
     
     def __fillMines(self, mines: int):
         # fill mines
-        mines_max = self.__w * self.__h * 0.2
+        mines_max = self.__w * self.__h * 0.16
         if mines > mines_max:
             self.__m = int(mines_max)
         else:
@@ -82,6 +82,10 @@ class Minefield:
     @property
     def field(self):
         return self.__field
+
+    @property
+    def mines(self):
+        return self.__m
 
     def __str__(self):
         out = ''
