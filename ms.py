@@ -15,6 +15,7 @@ class MinesWindow(Gtk.Window):
     __grid = None
     __mf = None
     __status = GAME_STATUS_OK
+    __btns = None
 
     def __init__(self):
         Gtk.Window.__init__(self, title="Mines")
@@ -29,37 +30,78 @@ class MinesWindow(Gtk.Window):
         print(self.__mf)
         field = self.__mf.field
 
+        # init buttons array
+        self.__btns = [0] * self.GAME_ROWS
+        for h in range(self.GAME_ROWS):
+            self.__btns[h] = [0] * self.GAME_COLS
+
         # generate buttons
         for h in range(self.GAME_ROWS):
             for w in range(self.GAME_COLS):
                 btn = Gtk.Button(label='   ', width_request = 40, height_request = 40)
                 btn.connect('clicked', self.on_cell_click, h*self.GAME_COLS + w)
                 self.__grid.attach(btn, w, h, 1, 1)
+                self.__btns[h][w] = btn;
     
     def on_cell_click(self, button, id):
-        if self.__status == self.GAME_STATUS_OK:
+        if self.__status == self.GAME_STATUS_OK and button.is_sensitive():
             # process clicks
             pos_h = int (id / self.GAME_COLS)
             pos_w = id % self.GAME_COLS
             field = self.__mf.field
             cell = field[pos_h][pos_w]
+
             if cell == minefield.Minefield.CELL_MINE:
                 # we've got mine
                 self.__status = self.GAME_STATUS_ENDED
                 button.set_label(' X ')
                 self.__showEndGame(False)
+
             elif cell == minefield.Minefield.CELL_EMPTY:
                 # check each near cell and if that one clear, click it
-                pass
+                button.set_sensitive(False)
+                self.openCleanArea(id)
+
             else:
                 # else show counter
                 button.set_label(' {} '.format(cell[1]))
-                pass
-            #Gtk.Widget.set_sensitive(button, False)
+
             button.set_sensitive(False)
         else:
             # do not process clicks when game ended
             pass
+    
+    def openCleanArea(self, pos: int):
+        pos_h = int (pos / self.GAME_COLS)
+        pos_w = pos % self.GAME_COLS
+        field = self.__mf.field
+        
+        if field[pos_h][pos_w] == minefield.Minefield.CELL_EMPTY:
+            #left
+            if pos_w > 0 and field[pos_h][pos_w-1] != minefield.Minefield.CELL_MINE:
+                self.on_cell_click(self.__btns[pos_h][pos_w-1], pos_h * self.GAME_COLS + pos_w-1)
+            #right
+            if pos_w < self.GAME_COLS-1 and field[pos_h][pos_w+1] != minefield.Minefield.CELL_MINE:
+                self.on_cell_click(self.__btns[pos_h][pos_w+1], pos_h * self.GAME_COLS + pos_w+1)
+            #top
+            if pos_h > 0 and field[pos_h-1][pos_w] != minefield.Minefield.CELL_MINE:
+                self.on_cell_click(self.__btns[pos_h-1][pos_w], (pos_h-1) * self.GAME_COLS + pos_w)
+            #top left
+            if pos_h > 0 and pos_w > 0 and field[pos_h-1][pos_w-1] != minefield.Minefield.CELL_MINE:
+                self.on_cell_click(self.__btns[pos_h-1][pos_w-1], (pos_h-1) * self.GAME_COLS + pos_w-1)
+            #top right
+            if pos_h > 0 and pos_w < self.GAME_COLS-1 and field[pos_h-1][pos_w+1] != minefield.Minefield.CELL_MINE:
+                self.on_cell_click(self.__btns[pos_h-1][pos_w+1], (pos_h-1) * self.GAME_COLS + pos_w+1)
+            #bottom
+            if pos_h < self.GAME_ROWS-1 and field[pos_h+1][pos_w] != minefield.Minefield.CELL_MINE:
+                self.on_cell_click(self.__btns[pos_h+1][pos_w], (pos_h+1) * self.GAME_COLS + pos_w)
+            #bottom left
+            if pos_h < self.GAME_ROWS-1 and pos_w > 0 and field[pos_h+1][pos_w-1] != minefield.Minefield.CELL_MINE:
+                self.on_cell_click(self.__btns[pos_h+1][pos_w-1], (pos_h+1) * self.GAME_COLS + pos_w-1)
+            #bottom rigt
+            if pos_h < self.GAME_ROWS-1 and pos_w < self.GAME_COLS-1 and field[pos_h+1][pos_w+1] != minefield.Minefield.CELL_MINE:
+                self.on_cell_click(self.__btns[pos_h+1][pos_w+1], (pos_h+1) * self.GAME_COLS + pos_w+1)
+
     
     def __showEndGame(self, won):
         if won == True:
