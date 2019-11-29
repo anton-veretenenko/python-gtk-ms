@@ -25,7 +25,7 @@ class Minefield:
     
     def __fillMines(self, mines: int):
         # fill mines
-        mines_max = self.__w * self.__h * 0.135
+        mines_max = self.__w * self.__h * 0.2
         if mines > mines_max:
             self.__m = int(mines_max)
         else:
