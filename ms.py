@@ -41,9 +41,27 @@ class MinesWindow(Gtk.Window):
             # process clicks
             pos_h = int (id / self.GAME_COLS)
             pos_w = id % self.GAME_COLS
+            field = self.__mf.field
+            if field[pos_h][pos_w] == minefield.Minefield.CELL_MINE:
+                # we've got mine
+                self.__status = self.GAME_STATUS_ENDED
+                self.__showEndGame(False)
         else:
             # do not process clicks when game ended
             pass
+    
+    def __showEndGame(self, won):
+        if won == True:
+            # show winning message
+            dialog = Gtk.MessageDialog(parent=self, message_type=Gtk.MessageType.INFO,
+                buttons=Gtk.ButtonsType.OK, text='Congratulations! You have WON!')
+        else:
+            # show fail message
+            dialog = Gtk.MessageDialog(parent=self, message_type=Gtk.MessageType.ERROR,
+                buttons=Gtk.ButtonsType.OK, text='B00M')
+        dialog.format_secondary_text('Restart me to play again')
+        dialog.run()
+        dialog.destroy()
 
 window = MinesWindow()
 window.connect("destroy", Gtk.main_quit)
