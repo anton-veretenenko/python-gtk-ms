@@ -42,10 +42,21 @@ class MinesWindow(Gtk.Window):
             pos_h = int (id / self.GAME_COLS)
             pos_w = id % self.GAME_COLS
             field = self.__mf.field
-            if field[pos_h][pos_w] == minefield.Minefield.CELL_MINE:
+            cell = field[pos_h][pos_w]
+            if cell == minefield.Minefield.CELL_MINE:
                 # we've got mine
                 self.__status = self.GAME_STATUS_ENDED
+                button.set_label(' X ')
                 self.__showEndGame(False)
+            elif cell == minefield.Minefield.CELL_EMPTY:
+                # check each near cell and if that one clear, click it
+                pass
+            else:
+                # else show counter
+                button.set_label(' {} '.format(cell[1]))
+                pass
+            #Gtk.Widget.set_sensitive(button, False)
+            button.set_sensitive(False)
         else:
             # do not process clicks when game ended
             pass
