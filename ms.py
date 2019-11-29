@@ -16,6 +16,7 @@ class MinesWindow(Gtk.Window):
     __mf = None
     __status = GAME_STATUS_OK
     __btns = None
+    __open_cells = 0
 
     def __init__(self):
         Gtk.Window.__init__(self, title="Mines")
@@ -27,8 +28,9 @@ class MinesWindow(Gtk.Window):
     
     def __drawField(self):
         self.__mf = minefield.Minefield(self.GAME_COLS, self.GAME_ROWS, self.GAME_MINES)
-        print(self.__mf)
+        #print(self.__mf)
         field = self.__mf.field
+        self.__open_cells = self.GAME_COLS * self.GAME_ROWS
 
         # init buttons array
         self.__btns = [0] * self.GAME_ROWS
@@ -54,6 +56,7 @@ class MinesWindow(Gtk.Window):
             if cell == minefield.Minefield.CELL_MINE:
                 # we've got mine
                 self.__status = self.GAME_STATUS_ENDED
+                self.__grid.set_sensitive(False)
                 button.set_label(' X ')
                 self.__showEndGame(False)
 
@@ -67,6 +70,13 @@ class MinesWindow(Gtk.Window):
                 button.set_label(' {} '.format(cell[1]))
 
             button.set_sensitive(False)
+            self.__open_cells -= 1
+            if self.__open_cells == self.__mf.mines:
+                # WON
+                self.__status = self.GAME_STATUS_ENDED
+                self.__grid.set_sensitive(False)
+                self.__showEndGame(True)
+
         else:
             # do not process clicks when game ended
             pass
